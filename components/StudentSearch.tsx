@@ -5,9 +5,10 @@ import { Student } from "@/types";
 
 interface StudentSearchProps {
   onSelect: (student: Student) => void;
+  initialFileNo?: string;
 }
 
-export default function StudentSearch({ onSelect }: StudentSearchProps) {
+export default function StudentSearch({ onSelect, initialFileNo }: StudentSearchProps) {
   const [query, setQuery] = useState("");
   const [students, setStudents] = useState<Student[]>([]);
   const [filtered, setFiltered] = useState<Student[]>([]);
@@ -22,6 +23,12 @@ export default function StudentSearch({ onSelect }: StudentSearchProps) {
       .then((data) => {
         if (Array.isArray(data)) {
           setStudents(data);
+          if (initialFileNo) {
+            const match = data.find(
+              (s: Student) => s.fileNo.toLowerCase() === initialFileNo.toLowerCase()
+            );
+            if (match) onSelect(match);
+          }
         } else {
           setError(data.error || "Failed to load students");
         }
@@ -31,6 +38,7 @@ export default function StudentSearch({ onSelect }: StudentSearchProps) {
         setError("Network error loading students");
         setLoading(false);
       });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

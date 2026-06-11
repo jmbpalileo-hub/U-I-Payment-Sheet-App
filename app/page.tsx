@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Student, PaymentFormData, ActionState, PaymentSheetParams } from "@/types";
 import { stripSlashes, buildEmailSubject } from "@/lib/formatters";
@@ -22,6 +22,13 @@ export default function Home() {
   const { data: session, status } = useSession();
   const [step, setStep] = useState(1);
   const [student, setStudent] = useState<Student | null>(null);
+  const [initialFileNo, setInitialFileNo] = useState<string | undefined>();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fileNo = params.get("fileNo");
+    if (fileNo) setInitialFileNo(fileNo);
+  }, []);
   const [form, setForm] = useState<PaymentFormData>(DEFAULT_FORM);
   const [screenshot, setScreenshot] = useState<File | null>(null);
   const [actions, setActions] = useState(initialActions());
@@ -225,7 +232,7 @@ export default function Home() {
 
       <main className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 space-y-4">
 
-        {step === 1 && <StudentSearch onSelect={handleSelectStudent} />}
+        {step === 1 && <StudentSearch onSelect={handleSelectStudent} initialFileNo={initialFileNo} />}
 
         {step === 2 && student && (
           <>
